@@ -2,31 +2,16 @@ import streamlit as st
 from datetime import date
 from dateutil.relativedelta import relativedelta
 import pandas as pd
-import os
 
-st.set_page_config(page_title="아동 만 나이 기록기", layout="wide")
-st.title("👶 아동 만 나이 기록기 (자동 저장형)")
+st.set_page_config(page_title="아동 만 나이 계산기", layout="wide")
+st.title("👶 아동 만 나이 계산기")
 
-# 저장할 파일 이름
-DB_FILE = "slp_database.csv"
-
-# 1. 데이터 불러오기 함수
-def load_data():
-    if os.path.exists(DB_FILE):
-        return pd.read_csv(DB_FILE).to_dict('records')
-    return []
-
-# 2. 데이터 저장하기 함수
-def save_data(data_list):
-    df = pd.DataFrame(data_list)
-    df.to_csv(DB_FILE, index=False, encoding='utf-8-sig')
-
-# 3. 세션 상태 초기화 (처음 실행 시 파일에서 로드)
+# 1. 세션 상태 초기화
 if 'results_list' not in st.session_state:
-    st.session_state['results_list'] = load_data()
+    st.session_state['results_list'] = []
 
-# --- 사이드바 입력창 ---
-with st.sidebar:
+# 2. 정보 입력 섹션
+with st.sidebar: # 입력창을 왼쪽 사이드바로 옮겨서 결과 목록을 더 넓게 볼 수 있게 구성했습니다.
     st.header("📋 정보 입력")
     child_name = st.text_input("대상자 이름", placeholder="이름 입력")
     
@@ -41,6 +26,8 @@ with st.sidebar:
     if st.button("계산 및 목록 추가", use_container_width=True):
         if not child_name:
             st.warning("이름을 입력해주세요.")
+        elif birth_date > test_date:
+            st.error("날짜를 확인해주세요.")
         else:
             diff = relativedelta(test_date, birth_date)
             total_months = (diff.years * 12) + diff.months
@@ -50,39 +37,56 @@ with st.sidebar:
                 "만 나이": f"{diff.years}세 {diff.months}개월 {diff.days}일",
                 "형식": f"{diff.years};{diff.months}",
                 "총 월령": f"{total_months}개월",
-                "생년월일": birth_date.strftime("%Y-%m-%d"),
-                "검사일": test_date.strftime("%Y-%m-%d")
+                "생년월일": birth_date.strftime("%Y-%m-%d")
             }
-            # 리스트에 추가하고 파일로 즉시 저장
             st.session_state['results_list'].append(new_entry)
-            save_data(st.session_state['results_list'])
             st.rerun()
 
-# --- 메인 화면: 결과 목록 ---
-st.subheader("📊 누적 검사 결과 목록")
+# 3. 결과 목록 표시 섹션
+st.subheader("📊 검사 결과 목록")
 
 if not st.session_state['results_list']:
-    st.info("저장된 데이터가 없습니다.")
+    st.info("입력된 데이터가 없습니다. 왼쪽에서 정보를 입력하고 추가해주세요.")
 else:
-    # 목록 표시 (삭제 기능 포함)
+    # 헤더 부분
+    h_col1, h_col2, h_col3, h_col4, h_col5 = st.columns([1, 2, 1, 1, 1])
+    h_col1.write("**이름**")
+    h_col2.write("**만 나이**")
+    h_col3.write("**형식(세;월)**")
+    h_col4.write("**총 월령**")
+    h_col5.write("**관리**")
+    st.divider()
+
+    # 목록 반복문으로 출력 (역순으로 보여줘서 최신 데이터가 위로 오게 함)
     for i, entry in enumerate(reversed(st.session_state['results_list'])):
+        # 실제 인덱스 계산 (역순 출력 때문)
         real_idx = len(st.session_state['results_list']) - 1 - i
         
         col1, col2, col3, col4, col5 = st.columns([1, 2, 1, 1, 1])
-        with col1: st.write(entry['이름'])
-        with col2: st.write(entry['만 나이'])
-        with col3: st.write(entry['형식'])
-        with col4: st.write(entry['총 월령'])
-        with col5:
-            if st.button("삭제", key=f"del_{real_idx}", use_container_width=True):
-                st.session_state['results_list'].pop(real_idx)
-                save_data(st.session_state['results_list']) # 삭제 후 파일 업데이트
-                st.rerun()
+        
+        col1.write(entry['이름'])
+        col2.write(entry['만 나이'])
+        col3.write(entry['형식'])
+        col4.write(entry['총 월령'])
+        
+        # 개별 삭제 버튼
+        if col5.button("삭제", key=f"del_{real_idx}", type="secondary", use_container_width=True):
+            st.session_state['results_list'].pop(real_idx)
+            st.rerun()
 
-    # 하단 도구
+    # 4. 하단 관리 기능
     st.sidebar.markdown("---")
-    if st.sidebar.button("데이터 전체 초기화"):
-        if os.path.exists(DB_FILE):
-            os.remove(DB_FILE)
+    if st.sidebar.button("목록 전체 초기화"):
         st.session_state['results_list'] = []
         st.rerun()
+    
+    if st.session_state['results_list']:
+        df = pd.DataFrame(st.session_state['results_list'])
+        csv = df.to_csv(index=False).encode('utf-8-sig')
+        st.sidebar.download_button(
+            label="전체 목록 CSV 다운로드",
+            data=csv,
+            file_name=f"SLP_Age_Report_{date.today()}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
