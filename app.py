@@ -8,7 +8,7 @@ st.title("👶 만 나이 계산기")
 birth_date = st.date_input(
     "아동의 생년월일",
     value=date(2020, 1, 1), # 기본값 (원하는 대로 수정 가능)
-    min_value=date(1980, 1, 1), # 1980년부터 입력 가능하도록 수정
+    min_value=date(1800, 1, 1), # 1980년부터 입력 가능하도록 수정
     max_value=date.today()      # 오늘 이후 날짜는 선택 불가능하게 설정
 )
 
