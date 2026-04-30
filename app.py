@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import date
 
-st.title("👶 아동 만 나이 계산기")
+st.title("👶 만 나이 계산기")
 
 # min_value를 1980년 1월 1일로 설정합니다.
 # value는 기본으로 표시될 날짜입니다.
@@ -21,4 +21,4 @@ if st.button("계산하기"):
     else:
         # 여기에 기존에 작성하셨던 만 나이 계산 로직을 넣으시면 됩니다.
         st.write(f"선택하신 생년월일: {birth_date}")
-        st.success("이제 정상적으로 계산됩니다!")
+        st.success("계산된 만 나이입니다!")
