@@ -54,7 +54,7 @@ else:
     h_col1.write("**이름**")
     h_col2.write("**검사일**") # 헤더 추가
     h_col3.write("**만 나이**")
-    h_col4.write("**형식(세;개월)**")
+    h_col4.write("**형식(세;월)**")
     h_col5.write("**총 월령**")
     h_col6.write("**관리**")
     st.divider()
@@ -69,7 +69,7 @@ else:
         col1.write(entry['이름'])
         col2.write(entry['검사일']) # 검사일 데이터 출력
         col3.write(entry['만 나이'])
-        col4.write(entry['형식(세;월)'])
+        col4.write(entry['형식'])
         col5.write(entry['총 월령'])
         
         # 개별 삭제 버튼
