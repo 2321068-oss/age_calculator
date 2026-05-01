@@ -54,7 +54,7 @@ else:
     h_col1.write("**이름**")
     h_col2.write("**검사일**") # 헤더 추가
     h_col3.write("**만 나이**")
-    h_col4.write("**세/개**")
+    h_col4.write("**형식(세/개월)**")
     h_col5.write("**총 월령**")
     h_col6.write("**관리**")
     st.divider()
