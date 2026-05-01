@@ -34,7 +34,7 @@ with st.sidebar:
             
             new_entry = {
                 "이름": child_name,
-                "검사일": test_date.strftime("%Y-%m-%d"), # 검사일 추가
+                "검사일": test_date.strftime("%Y-%m-%d"), 
                 "만 나이": f"{diff.years}세 {diff.months}개월 {diff.days}일",
                 "형식": f"{diff.years};{diff.months}",
                 "총 월령": f"{total_months}개월",
@@ -49,37 +49,34 @@ st.subheader("검사 결과 목록 📋")
 if not st.session_state['results_list']:
     st.info("입력된 데이터가 없습니다. 왼쪽에서 정보를 입력하고 추가해주세요.")
 else:
-    # 헤더 부분 (컬럼 개수를 6개로 조정)
     h_col1, h_col2, h_col3, h_col4, h_col5, h_col6 = st.columns([1, 1.2, 2, 1, 1, 0.8])
     h_col1.write("**이름**")
-    h_col2.write("**검사일**") # 헤더 추가
+    h_col2.write("**검사일**") 
     h_col3.write("**만 나이**")
     h_col4.write("**형식(세;월)**")
     h_col5.write("**총 월령**")
     h_col6.write("**관리**")
     st.divider()
 
-    # 목록 반복문으로 출력
     for i, entry in enumerate(reversed(st.session_state['results_list'])):
         real_idx = len(st.session_state['results_list']) - 1 - i
         
-        # 데이터 행 (컬럼 비율 맞춰서 출력)
         col1, col2, col3, col4, col5, col6 = st.columns([1, 1.2, 2, 1, 1, 0.8])
         
         col1.write(entry['이름'])
-        col2.write(entry['검사일']) # 검사일 데이터 출력
+        col2.write(entry['검사일']) 
         col3.write(entry['만 나이'])
         col4.write(entry['형식'])
         col5.write(entry['총 월령'])
         
-        # 개별 삭제 버튼
         if col6.button("삭제", key=f"del_{real_idx}", type="secondary", use_container_width=True):
             st.session_state['results_list'].pop(real_idx)
             st.rerun()
 
     # 4. 하단 관리 기능
     st.sidebar.markdown("---")
-    if st.sidebar.button("목록 전체 초기화 🔄"):
+    # 초기화 버튼에 use_container_width=True를 추가하여 크기를 맞춤
+    if st.sidebar.button("목록 전체 초기화 🔄", use_container_width=True):
         st.session_state['results_list'] = []
         st.rerun()
     
